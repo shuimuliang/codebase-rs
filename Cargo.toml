@@ -8,4 +8,5 @@ members = [
     "macro",
     "threads",
     "trait",
+    "grpc_health",
 ]
