@@ -75,6 +75,7 @@ fn main() {}
 
 #[test]
 fn test_poh_timing_report_service() {
+    use crossbeam_channel::unbounded;
     let (poh_timing_point_sender, poh_timing_point_receiver) = unbounded();
     let exit = Arc::new(AtomicBool::new(false));
     // Create the service
