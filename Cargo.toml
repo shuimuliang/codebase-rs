@@ -1,0 +1,11 @@
+[workspace]
+
+members = [
+    "backoff_retry",
+    "solana_blockstore",
+    "clap",
+    "dylib",
+    "macro",
+    "threads",
+    "trait",
+]
