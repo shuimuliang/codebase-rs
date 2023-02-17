@@ -9,4 +9,5 @@ members = [
     "threads",
     "trait",
     "grpc_health",
+    "tokio_demo",
 ]
