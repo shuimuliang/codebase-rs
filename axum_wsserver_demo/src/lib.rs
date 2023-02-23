@@ -1,7 +1,7 @@
 use axum::{
     extract::{
         connect_info::ConnectInfo,
-        ws::{WebSocket, WebSocketUpgrade},
+        ws::{WebSocket, WebSocketUpgrade, Message},
         TypedHeader,
     },
     // http::StatusCode,
@@ -11,6 +11,7 @@ use axum::{
 };
 
 use std::net::SocketAddr;
+use std::ops::ControlFlow;
 
 /// The handler for the HTTP request (this gets called when the HTTP GET lands at the start
 /// of websocket negotiation). After this completes, the actual switching from HTTP to
@@ -44,4 +45,36 @@ pub async fn ws_handler(
 }
 
 /// Actual websocket statemachine (one will be spawned per connection)
-async fn handle_socket(mut _socket: WebSocket, _who: SocketAddr) {}
+async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
+    // receive single message from a client (we can either receive or send with socket).
+    // this will likely be the Pong for our Ping or a hello message from client.
+    // waiting for message from a client will block this task, but will not block other client's
+    // connections.
+    if let Some(msg) = socket.recv().await {
+        if let Ok(msg) = msg {
+            if process_message(msg, who).is_break() {
+                return;
+            }
+        } else {
+            println!("client {} abruptly disconnected", who);
+            return;
+        }
+    }
+}
+
+/// helper to print contents of messages to stdout. Has special treatment for Close.
+fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
+    match msg {
+        // 127.0.0.1:59147 sent str: "'{}'\n"
+        Message::Text(t) => {
+            println!(">>> {} sent str: {:?}", who, t);
+        }
+        Message::Close(c) => {
+            return ControlFlow::Break(());
+        }
+        _ => {
+
+        }
+    }
+    ControlFlow::Continue(())
+}
