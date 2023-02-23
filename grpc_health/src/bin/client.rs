@@ -8,10 +8,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let conn = Endpoint::new(dst)?.connect().await?;
     let mut client = HealthClient::new(conn);
 
-    let response = client.watch(
-        HealthCheckRequest {
+    let response = client
+        .watch(HealthCheckRequest {
             service: "helloworld.Greeter".into(),
-        }).await.unwrap();
+        })
+        .await
+        .unwrap();
 
     let mut stream = response.into_inner();
     while let Ok(message) = stream.message().await {

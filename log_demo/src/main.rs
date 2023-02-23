@@ -1,4 +1,4 @@
-use log::{info, warn, debug, error, Level, log_enabled, trace};
+use log::{debug, error, info, log_enabled, trace, warn, Level};
 use std::env;
 
 fn main() {
@@ -21,4 +21,3 @@ fn main() {
         info!("the answer was: {}", x);
     }
 }
-
