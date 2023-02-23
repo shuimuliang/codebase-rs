@@ -11,4 +11,5 @@ members = [
     "grpc_health",
     "tokio_demo",
     "websocket_proxy",
+    "log_demo",
 ]
