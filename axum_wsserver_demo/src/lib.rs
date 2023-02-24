@@ -1,7 +1,7 @@
 use axum::{
     extract::{
         connect_info::ConnectInfo,
-        ws::{WebSocket, WebSocketUpgrade, Message},
+        ws::{Message, WebSocket, WebSocketUpgrade},
         TypedHeader,
     },
     // http::StatusCode,
@@ -12,6 +12,8 @@ use axum::{
 
 use std::net::SocketAddr;
 use std::ops::ControlFlow;
+
+pub mod msg;
 
 /// The handler for the HTTP request (this gets called when the HTTP GET lands at the start
 /// of websocket negotiation). After this completes, the actual switching from HTTP to
@@ -73,9 +75,7 @@ fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
             println!("client {} close", who);
             return ControlFlow::Break(());
         }
-        _ => {
-
-        }
+        _ => {}
     }
     ControlFlow::Continue(())
 }
