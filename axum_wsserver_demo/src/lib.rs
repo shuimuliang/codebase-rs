@@ -69,7 +69,8 @@ fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
         Message::Text(t) => {
             println!(">>> {} sent str: {:?}", who, t);
         }
-        Message::Close(c) => {
+        Message::Close(_c) => {
+            println!("client {} close", who);
             return ControlFlow::Break(());
         }
         _ => {
@@ -77,4 +78,28 @@ fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
         }
     }
     ControlFlow::Continue(())
+}
+
+#[cfg(test)]
+mod tests {
+    use tokio::sync::broadcast;
+
+    #[tokio::test]
+    async fn test_broadcast() {
+        let (sender, mut receiver1) = broadcast::channel(16);
+        let mut receiver2 = sender.subscribe();
+
+        tokio::spawn(async move {
+            assert_eq!(receiver1.recv().await.unwrap(), 10);
+            assert_eq!(receiver1.recv().await.unwrap(), 20);
+        });
+
+        tokio::spawn(async move {
+            assert_eq!(receiver2.recv().await.unwrap(), 10);
+            assert_eq!(receiver2.recv().await.unwrap(), 20);
+        });
+
+        sender.send(10).unwrap();
+        sender.send(20).unwrap();
+    }
 }
