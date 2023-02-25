@@ -7,13 +7,16 @@ use axum::{
     response::IntoResponse,
 };
 
+use log::info;
 use std::net::SocketAddr;
 use std::ops::ControlFlow;
-use log::info;
 
 //allows to split the websocket stream into separate TX and RX branches
 use futures::{sink::SinkExt, stream::StreamExt};
 use futures_util::stream::{SplitSink, SplitStream};
+
+// use axum::extract::ws::CloseFrame;
+// use std::borrow::Cow;
 
 pub mod msg;
 
@@ -49,7 +52,7 @@ pub async fn ws_handler(
 }
 
 /// Actual websocket statemachine (one will be spawned per connection)
-async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
+async fn handle_socket(socket: WebSocket, who: SocketAddr) {
     // receive single message from a client (we can either receive or send with socket).
     // this will likely be the Pong for our Ping or a hello message from client.
     // waiting for message from a client will block this task, but will not block other client's
@@ -75,7 +78,7 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
     //     }
     // }
 
-    let (mut sender, mut receiver) = socket.split();
+    let (sender, receiver) = socket.split();
 
     // This second task will receive messages from client and print them on server console
     // let mut recv_task = tokio::spawn(async move {
@@ -92,10 +95,35 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
     // });
 
     // Process each socket concurrently
-    let mut recv_task = tokio::spawn(async move {
-        read(receiver, who).await;
-    });
 
+    // Pseudo-code
+    // let join_handle: tokio::task::JoinHandle<Result<i32, JoinError>> = tokio::spawn(async {Ok(5 + 3)});
+
+    let mut recv_task = tokio::spawn(async move { read(receiver, who).await });
+
+    // Spawn a task that will push several messages to the client (does not matter what client does)
+    let mut send_task = tokio::spawn(async move { write(sender, who).await });
+
+    // If any one of the tasks exit, abort the other.
+    tokio::select! {
+        rv_a = (&mut send_task) => {
+            match rv_a {
+                Ok(a) => info!("{} messages sent to {}", a, who),
+                Err(a) => info!("Error sending messages {:?}", a)
+            }
+            recv_task.abort();
+        },
+        rv_b = (&mut recv_task) => {
+            match rv_b {
+                Ok(b) => info!("Received {} messages", b),
+                Err(b) => info!("Error receiving messages {:?}", b)
+            }
+            send_task.abort();
+        }
+    }
+
+    // returning from the handler closes the websocket connection
+    info!("Websocket context {} destroyed", who);
 }
 
 /// helper to print contents of messages to stdout. Has special treatment for Close.
@@ -127,8 +155,33 @@ async fn read(mut receiver: SplitStream<WebSocket>, who: SocketAddr) -> i32 {
     cnt
 }
 
-async fn write(sender: SplitSink<WebSocket, Message>) {
+async fn write(mut sender: SplitSink<WebSocket, Message>, who: SocketAddr) -> i32 {
+    let n_msg = 10;
+    for i in 0..n_msg {
+        // In case of any websocket error, we exit.
+        if sender
+            .send(Message::Text(format!("WebSocket Server message {} ...", i)))
+            .await
+            .is_err()
+        {
+            return i;
+        }
 
+        tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+    }
+
+    println!("Sending close to {}...", who);
+    // if let Err(e) = sender
+    //     .send(Message::Close(Some(CloseFrame {
+    //         code: axum::extract::ws::close_code::NORMAL,
+    //         reason: Cow::from("Goodbye"),
+    //     })))
+    //     .await
+    // {
+    //     println!("Could not send Close due to {}, probably it is ok?", e);
+    // }
+
+    n_msg
 }
 
 #[cfg(test)]
