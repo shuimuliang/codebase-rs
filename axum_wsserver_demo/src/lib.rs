@@ -5,12 +5,15 @@ use axum::{
         TypedHeader,
     },
     response::IntoResponse,
-    // Router,
 };
 
 use std::net::SocketAddr;
 use std::ops::ControlFlow;
 use log::info;
+
+//allows to split the websocket stream into separate TX and RX branches
+use futures::{sink::SinkExt, stream::StreamExt};
+use futures_util::stream::{SplitSink, SplitStream};
 
 pub mod msg;
 
@@ -38,7 +41,7 @@ pub async fn ws_handler(
         String::from("Unknown browser")
     };
 
-    println!("`{}` at {} connected.", user_agent, addr.to_string());
+    info!("`{}` at {} connected.", user_agent, addr.to_string());
 
     // finalize the upgrade process by returning upgrade callback.
     // we can customize the callback by sending additional info such as address.
@@ -51,25 +54,48 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
     // this will likely be the Pong for our Ping or a hello message from client.
     // waiting for message from a client will block this task, but will not block other client's
     // connections.
-    while let Some(msg) = socket.recv().await {
-        if let Ok(msg) = msg {
-            socket.send(Message::Text(format!("Hello from server {}", 10))).await.unwrap();
-            if process_message(msg, who).is_break() {
-                return;
-            }
-        } else {
-            println!("client {} abruptly disconnected", who);
-            return;
-        }
-    }
 
-    for i in 1..5 {
-        let res = socket.send(Message::Text(format!("Hello from server {}", i))).await;
-        if res.is_err() {
-            info!("client {} abruptly disconnected", who);
-            return;
-        }
-    }
+    // while let Some(msg) = socket.recv().await {
+    //     if let Ok(msg) = msg {
+    //         socket.send(Message::Text(format!("Hello from server {}", 10))).await.unwrap();
+    //         if process_message(msg, who).is_break() {
+    //             return;
+    //         }
+    //     } else {
+    //         info!("client {} abruptly disconnected", who);
+    //         return;
+    //     }
+    // }
+
+    // for i in 1..5 {
+    //     let res = socket.send(Message::Text(format!("Hello from server {}", i))).await;
+    //     if res.is_err() {
+    //         info!("client {} abruptly disconnected", who);
+    //         return;
+    //     }
+    // }
+
+    let (mut sender, mut receiver) = socket.split();
+
+    // This second task will receive messages from client and print them on server console
+    // let mut recv_task = tokio::spawn(async move {
+    //     let mut cnt = 0;
+    //     while let Some(Ok(msg)) = receiver.next().await {
+    //         cnt += 1;
+    //         info!("received message count: {}", cnt);
+    //         // print message and break if instructed to do so
+    //         if process_message(msg, who).is_break() {
+    //             break;
+    //         }
+    //     }
+    //     cnt
+    // });
+
+    // Process each socket concurrently
+    let mut recv_task = tokio::spawn(async move {
+        read(receiver, who).await;
+    });
+
 }
 
 /// helper to print contents of messages to stdout. Has special treatment for Close.
@@ -77,15 +103,32 @@ fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
     match msg {
         // 127.0.0.1:59147 sent str: "'{}'\n"
         Message::Text(t) => {
-            println!(">>> {} sent str: {:?}", who, t);
+            info!(">>> {} sent str: {:?}", who, t);
         }
         Message::Close(_c) => {
-            println!("client {} close", who);
+            info!("client {} close", who);
             return ControlFlow::Break(());
         }
         _ => {}
     }
     ControlFlow::Continue(())
+}
+
+async fn read(mut receiver: SplitStream<WebSocket>, who: SocketAddr) -> i32 {
+    let mut cnt = 0;
+    while let Some(Ok(msg)) = receiver.next().await {
+        cnt += 1;
+        info!("received message count: {}", cnt);
+        // print message and break if instructed to do so
+        if process_message(msg, who).is_break() {
+            break;
+        }
+    }
+    cnt
+}
+
+async fn write(sender: SplitSink<WebSocket, Message>) {
+
 }
 
 #[cfg(test)]

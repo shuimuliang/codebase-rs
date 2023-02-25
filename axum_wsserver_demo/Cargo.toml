@@ -13,6 +13,8 @@ path = "src/main.rs"
 axum = { version = "0.6.7", features = ["ws", "headers"] }
 axum-macros = "0.3.4"
 env_logger = "0.10.0"
+futures = "0.3.26"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
 headers = "0.3.8"
 log = "0.4.17"
 serde = { version = "1.0.152", features = ["derive"] }
