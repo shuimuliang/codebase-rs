@@ -4,14 +4,13 @@ use axum::{
         ws::{Message, WebSocket, WebSocketUpgrade},
         TypedHeader,
     },
-    // http::StatusCode,
     response::IntoResponse,
-    // routing::{get, get_service},
     // Router,
 };
 
 use std::net::SocketAddr;
 use std::ops::ControlFlow;
+use log::info;
 
 pub mod msg;
 
@@ -52,13 +51,22 @@ async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
     // this will likely be the Pong for our Ping or a hello message from client.
     // waiting for message from a client will block this task, but will not block other client's
     // connections.
-    if let Some(msg) = socket.recv().await {
+    while let Some(msg) = socket.recv().await {
         if let Ok(msg) = msg {
+            socket.send(Message::Text(format!("Hello from server {}", 10))).await.unwrap();
             if process_message(msg, who).is_break() {
                 return;
             }
         } else {
             println!("client {} abruptly disconnected", who);
+            return;
+        }
+    }
+
+    for i in 1..5 {
+        let res = socket.send(Message::Text(format!("Hello from server {}", i))).await;
+        if res.is_err() {
+            info!("client {} abruptly disconnected", who);
             return;
         }
     }
