@@ -217,6 +217,17 @@ mod tests {
         sender.send(20).unwrap();
     }
 
+    use tokio::sync::oneshot;
+    #[tokio::test]
+    async fn test_oneshot() {
+        let (tx, rx) = oneshot::channel::<i32>();
+        tokio::spawn(async move {
+            tx.send(10).unwrap();
+        });
+        let res = rx.await.unwrap();
+        assert_eq!(10, res);
+    }
+
     use anyhow;
     use axum::extract::ws::Message;
     use fake_socket::{create_fake_connection, FakeClient};
