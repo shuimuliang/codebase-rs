@@ -1,7 +1,7 @@
 use axum::{
     extract::{
         connect_info::ConnectInfo,
-        ws::{Message, WebSocket, WebSocketUpgrade},
+        ws::{Message, WebSocketUpgrade},
         TypedHeader,
     },
     response::IntoResponse,
@@ -12,9 +12,10 @@ use std::net::SocketAddr;
 use std::ops::ControlFlow;
 
 //allows to split the websocket stream into separate TX and RX branches
-use futures::{sink::SinkExt, stream::StreamExt};
+// use futures::{sink::SinkExt, stream::StreamExt};
 use futures_util::stream::{SplitSink, SplitStream};
 
+use futures::{Sink, SinkExt, Stream, StreamExt};
 // use axum::extract::ws::CloseFrame;
 // use std::borrow::Cow;
 
@@ -52,7 +53,10 @@ pub async fn ws_handler(
 }
 
 /// Actual websocket statemachine (one will be spawned per connection)
-async fn handle_socket(socket: WebSocket, who: SocketAddr) {
+async fn handle_socket<S>(socket: S, who: SocketAddr)
+where
+    S: Stream<Item = Result<Message, axum::Error>> + Sink<Message> + Send + 'static,
+{
     // receive single message from a client (we can either receive or send with socket).
     // this will likely be the Pong for our Ping or a hello message from client.
     // waiting for message from a client will block this task, but will not block other client's
@@ -142,7 +146,10 @@ fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
     ControlFlow::Continue(())
 }
 
-async fn read(mut receiver: SplitStream<WebSocket>, who: SocketAddr) -> i32 {
+async fn read<S>(mut receiver: SplitStream<S>, who: SocketAddr) -> i32
+where
+    S: Stream<Item = Result<Message, axum::Error>> + Sink<Message> + Send + 'static,
+{
     let mut cnt = 0;
     while let Some(Ok(msg)) = receiver.next().await {
         cnt += 1;
@@ -155,7 +162,10 @@ async fn read(mut receiver: SplitStream<WebSocket>, who: SocketAddr) -> i32 {
     cnt
 }
 
-async fn write(mut sender: SplitSink<WebSocket, Message>, who: SocketAddr) -> i32 {
+async fn write<S>(mut sender: SplitSink<S, Message>, who: SocketAddr) -> i32
+where
+    S: Stream<Item = Result<Message, axum::Error>> + Sink<Message> + Send + 'static,
+{
     let n_msg = 10;
     for i in 0..n_msg {
         // In case of any websocket error, we exit.
@@ -205,5 +215,37 @@ mod tests {
 
         sender.send(10).unwrap();
         sender.send(20).unwrap();
+    }
+
+    use anyhow;
+    use axum::extract::ws::Message;
+    use fake_socket::{create_fake_connection, FakeClient};
+    use std::net::SocketAddr;
+
+    use super::handle_socket;
+    use crate::msg;
+
+    async fn prepare_connections() -> anyhow::Result<FakeClient<Message>> {
+        let (mut client, socket) = create_fake_connection();
+        let who = SocketAddr::from(([127, 0, 0, 1], 10000));
+
+        tokio::spawn(async move { handle_socket(socket, who).await });
+
+        let raw_msg = msg::Msg::new(msg::ActionType::Join);
+        let json = serde_json::to_string(&raw_msg).unwrap();
+        let ws_msg = Message::Text(json);
+
+        client.send(ws_msg)?;
+        while let Some(Message::Text(msg)) = client.recv().await {
+            dbg!(&msg);
+        }
+
+        Ok(client)
+    }
+
+    #[tokio::test]
+    async fn test_server_echo() -> anyhow::Result<()> {
+        let _client = prepare_connections().await?;
+        Ok(())
     }
 }
