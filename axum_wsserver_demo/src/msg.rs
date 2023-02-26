@@ -37,7 +37,6 @@ impl Msg {
 
 #[cfg(test)]
 mod tests {
-
     use super::{ActionType, Msg};
 
     #[test]
@@ -49,5 +48,19 @@ mod tests {
         let msg = Msg::new(ActionType::Message("hello".to_string()));
         let json = serde_json::to_string(&msg).unwrap();
         assert_eq!(json, r#"{"action":{"message":"hello"}}"#);
+    }
+
+    #[test]
+    fn test_msg_try_from() {
+        let json = r#"{"action":{"message":"hello}}"#;
+        let msg = Msg::try_from(json);
+        assert!(msg.is_err());
+    }
+
+    #[test]
+    fn test_msg_from() {
+        let json = r#"{"action":{"message":"hello"}}"#;
+        let msg = Msg::try_from(json).unwrap();
+        assert!(matches!(msg.action, ActionType::Message(_)));
     }
 }
