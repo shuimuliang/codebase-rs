@@ -71,5 +71,3 @@ async fn handle_websocket(mut websocket: WebSocket) {
     }
     ()
 }
-
-// todo: add test for hashmap add
