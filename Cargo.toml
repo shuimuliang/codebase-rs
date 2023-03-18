@@ -15,4 +15,5 @@ members = [
     "axum_wsserver_demo",
     "axum_ws_proxy",
     "features_enabled_test",
+    "axum_ws_ratelimit",
 ]
