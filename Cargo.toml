@@ -17,3 +17,8 @@ members = [
     "features_enabled_test",
     "axum_ws_ratelimit",
 ]
+
+[profile.release]
+debug = true
+lto = true
+codegen-units = 1
