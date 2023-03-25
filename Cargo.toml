@@ -16,6 +16,7 @@ members = [
     "axum_ws_proxy",
     "features_enabled_test",
     "axum_ws_ratelimit",
+    "dashmap_demo",
 ]
 
 [profile.release]
