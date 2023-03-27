@@ -16,6 +16,14 @@ jobs:
 
     - name: Install Protoc
       uses: arduino/setup-protoc@v1
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
     - name: Build
       run: cargo build --verbose
     - name: Test
