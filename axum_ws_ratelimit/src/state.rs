@@ -5,7 +5,7 @@ use {
 
 const WS_CONN_LIMIT: usize = 2;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct AppState {
     pub conn: DashMap<IpAddr, usize>,
 }

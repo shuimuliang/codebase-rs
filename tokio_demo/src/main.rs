@@ -1,5 +1,3 @@
-use tokio;
-
 async fn foo() {
     println!("foo");
 }

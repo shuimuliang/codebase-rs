@@ -85,5 +85,4 @@ async fn handle_websocket(mut websocket: WebSocket, who: SocketAddr, state: Shar
             }
         }
     }
-    ()
 }

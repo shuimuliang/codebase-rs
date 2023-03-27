@@ -1,5 +1,3 @@
-use crossbeam;
-
 fn main() {
     let arr = &[1, 25, -4, 10];
     let max = find_max(arr);

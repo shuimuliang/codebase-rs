@@ -32,7 +32,7 @@ impl State {
         let i = 0;
         if let Some(v) = self.map.get(&i) {
             if *v.value() != value {
-                assert!(false);
+                panic!()
             }
         }
     }

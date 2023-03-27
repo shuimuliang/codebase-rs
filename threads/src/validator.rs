@@ -57,6 +57,7 @@ impl EntryService {
     }
 }
 
+#[derive(Default)]
 pub struct Validator {
     validator_exit: Arc<RwLock<Exit>>,
     transaction_status_service: Option<TransactionStatusService>,
