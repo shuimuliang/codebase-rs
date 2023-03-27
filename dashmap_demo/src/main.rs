@@ -1,5 +1,6 @@
+#![allow(dead_code)]
+
 use dashmap::DashMap;
-use std::sync::Arc;
 
 struct State {
     map: DashMap<u32, u32>,
@@ -43,6 +44,7 @@ async fn main() {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
 
     #[tokio::test]
     async fn test_1() {
