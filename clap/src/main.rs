@@ -31,7 +31,9 @@ fn main() {
     let args = Args::parse();
 
     let x_token = args.x_token;
-    if let Some(token) = x_token { println!("{}", token) }
+    if let Some(token) = x_token {
+        println!("{}", token)
+    }
     // for _ in 0..args.count {
     //     println!("Hello {:?}!", &x_token);
     // }
