@@ -36,10 +36,3 @@ jobs:
       run: cargo clippy --all-features -- -D warnings
     - name: Build and test
       run: cargo test --all-features
-    - name: Post cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.cargo
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        upload-if-modified: true
-      if: steps.cache-cargo.outputs.cache-hit != 'true'
