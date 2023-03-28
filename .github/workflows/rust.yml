@@ -8,25 +8,29 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v3
+    strategy:
+      matrix:
+        rust-version: [1.52.1]
 
-    - name: Install Protoc
-      uses: arduino/setup-protoc@v1
-    - uses: actions/cache@v2
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Cache Cargo dependencies
+      uses: actions/cache@v2
       with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
+        path: ~/.cargo
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-cargo-
-    - name: Build
-      run: cargo build --verbose
-    - name: Test
-      run: cargo test --verbose
-    - name: Clippy
-      run: cargo clippy --verbose
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust-version }}
+    - name: Check formatting
+      run: cargo fmt -- --check
+    - name: Check clippy
+      run: cargo clippy --all-features -- -D warnings
+    - name: Build and test
+      run: cargo test --all-features
