@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        rust-version: [1.52.1]
+        rust-version: [1.68.0]
 
     steps:
     - name: Checkout code
@@ -24,6 +24,8 @@ jobs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-cargo-
+    - name: Install Protoc
+      uses: arduino/setup-protoc@v1
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
@@ -34,3 +36,10 @@ jobs:
       run: cargo clippy --all-features -- -D warnings
     - name: Build and test
       run: cargo test --all-features
+    - name: Post cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.cargo
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        upload-if-modified: true
+      if: steps.cache-cargo.outputs.cache-hit != 'true'
