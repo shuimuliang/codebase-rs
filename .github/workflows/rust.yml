@@ -12,13 +12,13 @@ jobs:
 
     strategy:
       matrix:
-        rust-version: [1.68.0]
+        rust-version: [1.68.2]
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Cache Cargo dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cargo
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
