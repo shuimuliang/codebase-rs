@@ -228,7 +228,6 @@ mod tests {
         assert_eq!(10, res);
     }
 
-    use anyhow;
     use axum::extract::ws::Message;
     use fake_socket::{create_fake_connection, FakeClient};
     use std::net::SocketAddr;

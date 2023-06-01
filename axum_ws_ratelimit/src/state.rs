@@ -79,32 +79,32 @@ mod tests {
     fn test_state_remove_conn() {
         let state = AppState::new();
         let addr = IpAddr::from([127, 0, 0, 1]);
-        assert_eq!(state.exist_conn(addr), false);
+        assert!(!state.exist_conn(addr));
 
         // count is 1, exist
         state.add_conn(addr);
-        assert_eq!(state.exist_conn(addr), true);
+        assert!(state.exist_conn(addr));
 
         // count is 2, exist
         state.add_conn(addr);
-        assert_eq!(state.exist_conn(addr), true);
+        assert!(state.exist_conn(addr));
 
         // count decrease to 1, exist
         state.remove_conn(addr);
-        assert_eq!(state.exist_conn(addr), true);
+        assert!(state.exist_conn(addr));
 
         // count decrease to 0, not exist
         state.remove_conn(addr);
-        assert_eq!(state.exist_conn(addr), false);
+        assert!(!state.exist_conn(addr));
     }
 
     #[test]
     fn test_state_remove_conn_non_exist() {
         let state = AppState::new();
         let addr = IpAddr::from([127, 0, 0, 1]);
-        assert_eq!(state.exist_conn(addr), false);
+        assert!(!state.exist_conn(addr));
 
         state.remove_conn(addr);
-        assert_eq!(state.exist_conn(addr), false);
+        assert!(!state.exist_conn(addr));
     }
 }
