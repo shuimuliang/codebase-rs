@@ -1,7 +1,10 @@
 pub mod msg;
+pub mod prom;
+pub mod version;
 
 use {
     crate::msg::{Msg, MsgData},
+    crate::prom::{OPEN_CONNECTIONS, ROOM_PEOPLES},
     axum::{
         extract::{ws::Message, State, WebSocketUpgrade},
         response::IntoResponse,
@@ -68,6 +71,7 @@ async fn handle_socket<S>(socket: S, state: ChatState)
 where
     S: Stream<Item = Result<Message, axum::Error>> + Sink<Message> + Send + 'static,
 {
+    OPEN_CONNECTIONS.inc();
     let mut rx = state.0.tx.subscribe();
     let (mut sender, mut receiver) = socket.split();
 
@@ -101,6 +105,7 @@ where
     // let username = "fake_user";
     let username = "tyr"; // to make handle_client_disconnect_should_work() test work, we need to use "tyr"
     warn!("connection for {username} closed");
+    OPEN_CONNECTIONS.dec();
 
     for room in state.get_user_rooms(username) {
         if let Err(e) = state.0.tx.send(Arc::new(Msg::leave(&room, username))) {
@@ -121,9 +126,20 @@ async fn handle_message(msg: Msg, state: Arc<ShareState>) {
                 .insert(room.clone());
             state
                 .room_users
-                .entry(room)
+                .entry(room.clone())
                 .or_insert_with(DashSet::new)
                 .insert(username);
+
+            match state.room_users.entry(room.clone()) {
+                dashmap::mapref::entry::Entry::Occupied(entry) => ROOM_PEOPLES
+                    .with_label_values(&[&room])
+                    .set(entry.get().len() as i64),
+                dashmap::mapref::entry::Entry::Vacant(_) => {
+                    // Handle the case when the entry is vacant
+                    ROOM_PEOPLES.with_label_values(&[&room]).set(0);
+                }
+            }
+
             msg
         }
         MsgData::Leave => {
