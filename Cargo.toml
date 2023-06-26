@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 
 members = [
     "backoff_retry",
@@ -20,6 +21,7 @@ members = [
     "mockall_demo",
     "prometheus_metrics",
     "axum_ws_room_prometheus",
+    "rayon_demo",
 ]
 
 [profile.release]
