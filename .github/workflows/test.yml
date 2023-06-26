@@ -1,4 +1,4 @@
-name: Rust CI
+name: Rust CI Test
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
 
 jobs:
   build:
@@ -16,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        rust-version: [nightly-2023-06-05]
+        rust-version: [nightly-2023-06-25]
 
     steps:
     - name: Checkout code
