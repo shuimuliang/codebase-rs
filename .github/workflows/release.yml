@@ -34,8 +34,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: ${{ env.BUILD_NAME }}
           body: |
-            ${{ env.CI_TAG }}
+            ${{ env.CI_TAG }} rayon_cli
           files: |
             target/x86_64-unknown-linux-gnu/release/rayon_cli
