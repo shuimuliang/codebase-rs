@@ -3,6 +3,7 @@ name: Rust CI Test
 on:
   push:
     branches: [ main ]
+    types: [opened, synchronize, reopened]
   pull_request:
     branches: [ main ]
 
