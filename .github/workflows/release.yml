@@ -26,14 +26,10 @@ jobs:
           command: build
           args: --release --bin rayon_cli
 
-      - name: Create build name
-        run: |
-          echo "BUILD_NAME=$CI_TAG" >> "$GITHUB_ENV"
-
       - name: Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: ${{ env.BUILD_NAME }}
           body: |
             ${{ env.CI_TAG }}
           files: |
