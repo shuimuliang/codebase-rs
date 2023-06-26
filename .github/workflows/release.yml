@@ -4,13 +4,10 @@ on:
   push:
     branches: [ main ]
     tags:
-      - '*'
-
-  release:
-    types: [ created ]
+      - 'v*'
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,12 +26,14 @@ jobs:
           command: build
           args: --release --bin rayon_cli
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create build name
+        run: |
+          echo "BUILD_NAME=$CI_TAG" >> "$GITHUB_ENV"
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./target/release/rayon_cli
-          asset_name: rayon_cli
-          asset_content_type: application/octet-stream
+          body: |
+            ${{ env.CI_TAG }}
+          files: |
+            target/release/rayon_cli
