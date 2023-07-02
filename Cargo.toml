@@ -22,6 +22,7 @@ members = [
     "prometheus_metrics",
     "axum_ws_room_prometheus",
     "rayon_demo",
+    "cli_pattern",
 ]
 
 [profile.release]
