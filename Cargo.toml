@@ -23,7 +23,8 @@ members = [
     "axum_ws_room_prometheus",
     "rayon_demo",
     "cli_pattern",
-    "aws_dynamodb_kms_demo"
+    "aws_dynamodb_kms_demo",
+    "wallet_socket_demo"
 ]
 
 [profile.release]
