@@ -7,15 +7,33 @@ edition = "2021"
 
 [[bin]]
 name = "aws-dynamodb-create-table"
-path = "bin/create-table.rs"
+path = "bin/dynamodb-create-table.rs"
 
 [[bin]]
 name = "aws-dynamodb-add-item"
-path = "bin/add-item.rs"
+path = "bin/dynamodb-add-item.rs"
+
+[[bin]]
+name = "aws-kms-create-key"
+path = "bin/kms-create-key.rs"
+
+[[bin]]
+name = "aws-kms-generate-data-key"
+path = "bin/kms-generate-data-key.rs"
+
+[[bin]]
+name = "aws-kms-encrypt"
+path = "bin/kms-encrypt.rs"
+
+[[bin]]
+name = "aws-kms-decrypt"
+path = "bin/kms-decrypt.rs"
 
 [dependencies]
 aws-config = "0.56.0"
 aws-sdk-dynamodb = "0.29.0"
+aws-sdk-kms = "0.29.0"
+base64 = "0.21.2"
 clap = { version = "4.3.10", features = ["derive"] }
 thiserror = "1.0.44"
 tokio = { version = "1.29.1", features = ["full"] }
