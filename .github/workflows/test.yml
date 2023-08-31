@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        rust-version: [nightly-2023-08-07]
+        rust-version: [nightly]
 
     steps:
     - name: Checkout code
