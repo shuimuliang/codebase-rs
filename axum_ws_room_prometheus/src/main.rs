@@ -1,5 +1,5 @@
 use {
-    axum::{routing::get, Router, Server},
+    axum::{routing::get, Router},
     axum_ws_room_prometheus::{prom, ws_handler, ChatState},
     std::env::set_var,
     std::net::SocketAddr,
@@ -23,8 +23,8 @@ async fn main() {
         .route("/metrics", get(prom::metrics_as_http_response))
         .with_state(share_state);
     println!("Listening on {}", addr);
-    Server::bind(&addr)
-        .serve(app.into_make_service())
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(listener, app.into_make_service())
         .await
         .unwrap();
 }

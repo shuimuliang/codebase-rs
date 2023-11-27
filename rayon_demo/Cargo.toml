@@ -10,4 +10,4 @@ name = "rayon_cli"
 path = "src/main.rs"
 
 [dependencies]
-rayon = "1.7.0"
+rayon = "1.8.0"
