@@ -10,7 +10,6 @@ use axum_macros::debug_handler;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashMap;
-use std::net::SocketAddr;
 use std::sync::{Arc, RwLock};
 
 #[derive(Default, Clone)]
@@ -36,11 +35,8 @@ async fn main() {
         .with_state(share_state);
 
     // run it with hyper on localhost:3000
-    let addr: SocketAddr = "0.0.0.0:3000".parse().unwrap();
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
 
 async fn root() {}

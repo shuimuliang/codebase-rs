@@ -38,9 +38,9 @@ pub async fn create_table(
     let create_table_response = client
         .create_table()
         .table_name(table_name)
-        .key_schema(ks)
-        .attribute_definitions(ad)
-        .provisioned_throughput(pt)
+        .key_schema(ks.unwrap())
+        .attribute_definitions(ad.unwrap())
+        .provisioned_throughput(pt.unwrap())
         .send()
         .await;
 

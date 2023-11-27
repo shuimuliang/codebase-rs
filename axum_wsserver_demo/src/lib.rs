@@ -2,11 +2,11 @@ use axum::{
     extract::{
         connect_info::ConnectInfo,
         ws::{Message, WebSocketUpgrade},
-        TypedHeader,
     },
     response::IntoResponse,
 };
 
+// use axum_extra::TypedHeader;
 use log::info;
 use std::net::SocketAddr;
 use std::ops::ControlFlow;
@@ -21,32 +21,25 @@ use futures::{Sink, SinkExt, Stream, StreamExt};
 
 pub mod msg;
 
+use axum_macros::debug_handler;
 /// The handler for the HTTP request (this gets called when the HTTP GET lands at the start
 /// of websocket negotiation). After this completes, the actual switching from HTTP to
 /// websocket protocol will occur.
 /// This is the last point where we can extract TCP/IP metadata such as IP address of the client
 /// as well as things from HTTP headers such as user-agent of the browser etc.
+
+#[debug_handler]
 pub async fn ws_handler(
     ws: WebSocketUpgrade,
-    user_agent: Option<TypedHeader<headers::UserAgent>>,
+    // user_agent: Option<TypedHeader<headers::UserAgent>>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
 ) -> impl IntoResponse {
-    // user_agent = None
-    // &user_agent = Some(
-    //     TypedHeader(
-    //         UserAgent(
-    //             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
-    //         ),
-    //     ),
-    // )
-    let user_agent = if let Some(TypedHeader(user_agent)) = user_agent {
-        user_agent.to_string()
-    } else {
-        String::from("Unknown browser")
-    };
-
-    info!("`{}` at {} connected.", user_agent, addr.to_string());
-
+    // let user_agent = if let Some(TypedHeader(user_agent)) = user_agent {
+    //     user_agent.to_string()
+    // } else {
+    //     String::from("Unknown browser")
+    // };
+    // println!("`{user_agent}` at {addr} connected.");
     // finalize the upgrade process by returning upgrade callback.
     // we can customize the callback by sending additional info such as address.
     ws.on_upgrade(move |socket| handle_socket(socket, addr))

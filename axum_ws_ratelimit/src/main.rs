@@ -29,9 +29,13 @@ async fn main() -> anyhow::Result<()> {
 
     debug!("listen to: {:?}", addr);
 
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service_with_connect_info::<SocketAddr>())
-        .await?;
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await
+    .unwrap();
 
     Ok(())
 }
