@@ -1,6 +1,6 @@
 use tonic::transport::Endpoint;
-use tonic_health::proto::health_client::HealthClient;
-use tonic_health::proto::HealthCheckRequest;
+use tonic_health::pb::health_client::HealthClient;
+use tonic_health::pb::HealthCheckRequest;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

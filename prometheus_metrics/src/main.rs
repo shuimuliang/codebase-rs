@@ -8,8 +8,7 @@
 //! ```
 
 use axum::{
-    extract::MatchedPath,
-    http::Request,
+    extract::{MatchedPath, Request},
     middleware::{self, Next},
     response::IntoResponse,
     routing::get,
@@ -45,10 +44,11 @@ async fn start_main_server() {
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3002));
     tracing::debug!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(listener, app.into_make_service())
         .await
-        .unwrap()
+        .unwrap();
 }
 
 async fn start_metrics_server() {
@@ -57,10 +57,10 @@ async fn start_metrics_server() {
     // NOTE: expose metrics enpoint on a different port
     let addr = SocketAddr::from(([127, 0, 0, 1], 3001));
     tracing::debug!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(listener, app.into_make_service())
         .await
-        .unwrap()
+        .unwrap();
 }
 
 #[tokio::main]
@@ -94,7 +94,7 @@ fn setup_metrics_recorder() -> PrometheusHandle {
         .unwrap()
 }
 
-async fn track_metrics<B>(req: Request<B>, next: Next<B>) -> impl IntoResponse {
+async fn track_metrics(req: Request, next: Next) -> impl IntoResponse {
     let start = Instant::now();
     let path = if let Some(matched_path) = req.extensions().get::<MatchedPath>() {
         matched_path.as_str().to_owned()

@@ -122,12 +122,12 @@ async fn handle_message(msg: Msg, state: Arc<ShareState>) {
             state
                 .user_rooms
                 .entry(username.clone())
-                .or_insert_with(DashSet::new)
+                .or_default()
                 .insert(room.clone());
             state
                 .room_users
                 .entry(room.clone())
-                .or_insert_with(DashSet::new)
+                .or_default()
                 .insert(username);
 
             match state.room_users.entry(room.clone()) {

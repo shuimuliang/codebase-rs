@@ -6,6 +6,7 @@
 #![allow(clippy::result_large_err)]
 
 use aws_config::meta::region::RegionProviderChain;
+use aws_config::BehaviorVersion;
 use aws_sdk_kms::{config::Region, meta::PKG_VERSION, Client, Error};
 use clap::Parser;
 
@@ -25,11 +26,7 @@ struct Opt {
 async fn make_key(client: &Client) -> Result<(), Error> {
     let resp = client.create_key().send().await?;
 
-    let id = resp
-        .key_metadata
-        .unwrap()
-        .key_id
-        .unwrap_or_else(|| String::from("No ID!"));
+    let id = resp.key_metadata.unwrap().key_id;
 
     println!("Key: {}", id);
 
@@ -62,7 +59,10 @@ async fn main() -> Result<(), Error> {
         println!();
     }
 
-    let shared_config = aws_config::from_env().region(region_provider).load().await;
+    let shared_config = aws_config::defaults(BehaviorVersion::latest())
+        .region(region_provider)
+        .load()
+        .await;
     let client = Client::new(&shared_config);
 
     make_key(&client).await
