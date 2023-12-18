@@ -24,7 +24,8 @@ members = [
     "rayon_demo",
     "cli_pattern",
     "aws_dynamodb_kms_demo",
-    "wallet_socket_demo"
+    "wallet_socket_demo",
+    "wasm_demo",
 ]
 
 [profile.release]
