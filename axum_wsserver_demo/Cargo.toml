@@ -12,11 +12,11 @@ path = "src/main.rs"
 [dependencies]
 axum = { version = "0.7.1", features = ["ws"] }
 axum-macros = "0.4.0"
-axum-extra = { version = "0.9.0", features = ["typed-header"] }
+#axum-extra = { version = "0.9.0", features = ["typed-header"] }
 env_logger = "0.10.1"
 futures = "0.3.29"
 futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
-headers = "0.3"
+#headers = "0.3"
 log = "0.4.20"
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = { version = "1.0.108" }

@@ -13,6 +13,9 @@ fmt:
 clippy:
 	cargo clippy --workspace --all-targets --tests -- -D warnings
 
+doc:
+	RUSTDOCFLAGS="-D warnings" cargo doc --document-private-items --all --no-deps
+
 clean:
 	cargo clean
 
@@ -21,3 +24,6 @@ build:
 
 build-mac:
 	cargo build --release --target aarch64-apple-darwin
+
+unused_dep:
+	cargo machete

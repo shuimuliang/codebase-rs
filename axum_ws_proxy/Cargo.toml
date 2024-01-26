@@ -10,5 +10,5 @@ name = "axum-ws-proxy"
 path = "src/main.rs"
 
 [dependencies]
-axum = { version = "0.7.1", features = ["ws"] }
+#axum = { version = "0.7.1", features = ["ws"] }
 tokio = { version = "1.34.0", features = ["full"] }

@@ -51,7 +51,7 @@ pub struct Disconnect;
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    /// Sign in to your https://upvpn.app account
+    /// Sign in to your <https://upvpn.app> account
     SignIn(SignIn),
     /// Sign out current device
     SignOut(SignOut),
