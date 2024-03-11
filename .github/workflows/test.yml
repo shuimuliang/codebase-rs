@@ -25,7 +25,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install --reinstall binutils
-        which ld
+        sudo apt-get install lld
     - name: Cache Cargo dependencies
       uses: actions/cache@v3
       with:
