@@ -21,6 +21,10 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    - name: Update and reinstall binutils
+      run: |
+        sudo apt-get update
+        sudo apt-get install --reinstall binutils
     - name: Cache Cargo dependencies
       uses: actions/cache@v3
       with:
