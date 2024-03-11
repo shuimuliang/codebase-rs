@@ -13,7 +13,6 @@ fn main() -> anyhow::Result<()> {
         .all_cargo()
         .emit()?;
 
-
     // vergen git version does not looks cool
     println!(
         "cargo:rustc-env=GIT_VERSION={}",
