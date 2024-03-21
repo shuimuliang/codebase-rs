@@ -14,4 +14,4 @@
 * axum_wsserver_demo
 * axum_ws_proxy
 
-[![Rust CI](https://github.com/shuimuliang/codebase-rs/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/shuimuliang/codebase-rs/actions/workflows/rust.yml)
+[![Rust CI Test](https://github.com/shuimuliang/codebase-rs/actions/workflows/test.yml/badge.svg)](https://github.com/shuimuliang/codebase-rs/actions/workflows/test.yml)
