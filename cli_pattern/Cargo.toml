@@ -11,7 +11,7 @@ clap = { version = "4.4.8", features = ["derive"] }
 tokio = { version = "1.34.0", features = ["rt-multi-thread", "macros", "signal"] }
 thiserror = "1.0.50"
 tonic = "0.10.2"
-dialoguer = { version = "0.11.0", features = ["fuzzy-select"] }
-indicatif = "0.17.7"
-tokio-stream = { version = "0.1.14", features = ["sync"] }
-console = "0.15.7"
+#dialoguer = { version = "0.11.0", features = ["fuzzy-select"] }
+#indicatif = "0.17.7"
+#tokio-stream = { version = "0.1.14", features = ["sync"] }
+#console = "0.15.7"
